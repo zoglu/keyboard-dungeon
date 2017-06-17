@@ -81,6 +81,48 @@ var monsterList =
 			else this.nextMove = 'attack';
 		},
 	},
+	rat:
+	{
+		maxHp : 8,
+		hpVar: 25,
+		attack : 3,
+		rndAttack: 5,
+		moveset: 
+		{
+			attack: 
+			{
+				minCast: 5,
+				maxCast: 9,
+			},
+			poison: 
+			{
+				minCast: 7,
+				maxCast: 9,
+			}
+		},
+		action: function(game){
+			var p = game.player;
+			switch(this.nextMove)
+			{
+				case 'poison':
+					var damage = Math.round(this.attack*(1+this.attackVar*0.01*(2*game.random()-1)));
+					var hpleft = p.playerDamage(damage);
+					game.addMsg('|o'+this.name+'|w takes a poisonous bite for '+damage+' damage ! ('+hpleft+' HP left)');
+					p.addAilment({
+						type: 'poison',
+						step: 0,
+						maxStep: 2,
+						hp: 15,
+						hpByStep: 2,
+					});
+				break;
+			}
+		},
+		decision: function(game){
+			var keys = ['attack','poison'];
+			this.nextMove = keys[Math.floor(game.random()*keys.length)];
+		},
+	},
 }
 
 

@@ -158,6 +158,20 @@ var Player = function(){
 						} 
 					}
 				break;
+				case 'poison':
+					a.step += game.dt*0.001;
+					if(a.step >= a.maxStep){
+						a.step -= a.maxStep;
+						var damage = Math.min(a.hp,a.hpByStep);
+						this.playerDamage(damage);
+						game.addMsg('|fYou lose '+damage+' HP due to poison. ('+this.hp+'/'+this.maxHp+' HP left)');
+						a.hp -= a.hpByStep;
+						if(a.hp <= 0){
+							this.removeAilment('poison');
+							game.addMsg('You are no more poisoned.')
+						} 
+					}
+				break;
 			}
 		}
 	}
@@ -165,6 +179,7 @@ var Player = function(){
 		var type = elt.type;
 		for(var i = 0; i < this.ailments.length; i++){
 			var a = this.ailments[i];
+			//If player is already affected by this ailment
 			if(a.type == type){
 				switch(type){
 					case 'paralysis':
@@ -183,6 +198,15 @@ var Player = function(){
 							game.addMsg('|gYour health regenerates even more.');
 						}
 					break;
+					case 'poison':
+						if(overwrite) this.ailments[i] = elt;
+						else{
+							this.ailments[i].hp = Math.max(this.ailments[i].hp,elt.hp);
+							this.ailments[i].maxStep = elt.maxStep;
+							this.ailments[i].hpByStep = elt.hpByStep;
+							game.addMsg('|fThe poison\'s effect increased.');
+						}
+					break;
 				}
 				return false;
 			}
@@ -190,6 +214,9 @@ var Player = function(){
 		switch(type){
 			case 'paralysis':
 				game.addMsg('|fYou are paralysed ! Type '+elt.characters+' characters to recover.');
+			break;
+			case 'poison':
+				game.addMsg('|fYou are poisoned !');
 			break;
 			case 'regenerate':
 				game.addMsg('|gYour health starts to regenerate.');
