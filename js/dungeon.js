@@ -49,7 +49,7 @@ var Floor = function(f){
 			do{
 				var id = 1+Math.floor(game.random()*(this.rooms.length-2));
 				room = this.rooms[id];
-			}while(room.monsters == true);
+			} while(room.monsters == true);
 			room.monsters = true;
 
 			//On détermine un nombre de points d'XP maximal pour cette salle puis on place les monstres disponibles
