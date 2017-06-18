@@ -20,7 +20,7 @@ var Floor = function(f){
 	this.floor = f;
 	this.startX = 0;
 	this.startY = 0;
-	this.endX = 5;
+	this.endX = 7;
 	this.endY = 0;
 	this.rooms = [];
 
@@ -81,8 +81,21 @@ var Floor = function(f){
 			}
 		}
 
+		//Ajout de clés aux salles qui ont des monstres
+		var nbKeyRooms = Math.floor(nbMonsterRooms*(0.2+0.3*game.random()));
+		var nbKeyRooms = nbMonsterRooms-1;
+		for(var i = 0; i < nbKeyRooms; i++){
+			var room;
+			do{
+				var id = 1+Math.floor(game.random()*(this.rooms.length-2));
+				room = this.rooms[id];
+				roomContents = room.room;
+			} while(roomContents.key || !room.monsters);
+			roomContents.setKey(true);
+		}
+
 		//Ajout d'un coffre aux salles
-		var percentChest = 100;
+		var percentChest = 40;
 		var chestItems = ['potion','antidote'];
 		var nbChestRooms = Math.round((this.rooms.length-2)*percentChest/100);
 		for(var i = 0; i < nbChestRooms; i++){
@@ -130,7 +143,12 @@ var Floor = function(f){
 			if(!this.hasMonsters(x,y))
 			{
 				//Coffre
-				if(room.chest) msgs.push('There is a chest on the ground.','If you have a key, you may |copen chest|w.');
+				if(room.chest)
+				{
+					if(['potion','antidote'].indexOf(room.chest) != -1) msgs.push('There is a chest on the ground, which seems to contain a flask.');
+					else msgs.push('There is a chest on the ground.');
+					if(game.player.hasItem('Key')) msgs.push('You have '+game.player.describeItems('Key')+', so you may |copen chest|w.');
+				} 
 
 				var locations = this.getDirections(x,y);
 				var msg = '';
@@ -153,6 +171,7 @@ var Floor = function(f){
 //Décrit une salle et son contenu : monstres, coffres etc.
 var Room = function(){
 	this.chest = false;
+	this.key = false;
 	this.monsters = []; //Tableau de monstres
 	this.monstersNames = []; //Noms déjà choisis pour les monstres
 
@@ -238,5 +257,8 @@ var Room = function(){
 	}
 	this.setChest = function(item){
 		this.chest = item;
+	}
+	this.setKey = function(bool){
+		this.key = bool;
 	}
 }

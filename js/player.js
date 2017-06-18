@@ -30,6 +30,7 @@ var Player = function(){
 		if(!this.fighting){
 			if(floor.hasMonsters(this.x,this.y)){
 				this.fighting = true;
+				game.addMsg('');
 				game.addMsg('|r*****************');
 				game.addMsg('|r'+room.describeEncounter());
 				game.addMsg('|r*****************');
@@ -42,7 +43,13 @@ var Player = function(){
 				this.fighting = false;
 				game.addMsg('|g*** YOU WON ! ***');
 				game.addMsg('|g You got a total of '+this.fightxp+' XP.');
+				if(room.key)
+				{
+					game.addMsg('|gThe enemies left a |oKey|g.');
+					this.addItem('Key',false);
+				}
 				game.addMsg('|g*****************');
+				game.addMsg('');
 				snd.play('Success2');
 				this.fightxp = 0;
 				var msgs = floor.describeRoom(this.x,this.y);
@@ -66,6 +73,11 @@ var Player = function(){
 		return this.hp - prevHp;
 	}
 
+	this.addItem = function(item,msg){
+		if(typeof msg == 'undefined') msg = true;
+		if(msg) game.addMsg('You got '+(['a','e','i','o','u'].indexOf(item[0].toLowerCase()) != -1 ? 'an' : 'a')+' |o'+item+'|w.')
+		this.items.push(item);
+	}
 	this.hasItem = function(item){
 		for(var i = 0; i < this.items.length; i++){
 			if(this.items[i].toLowerCase() == item.toLowerCase()) return i;
@@ -117,17 +129,20 @@ var Player = function(){
 			}
 		};
 	}
-	this.describeItems = function(){
+	this.describeItems = function(itemName){
 		var msg = '';
 		var items = [];
 		var types = {};
 		for(var i = 0; i < this.items.length; i++){
 			var item = this.items[i];
-			if(types[item]){
-				types[item].nb++;
-			}
-			else{
-				types[item] = {sing: item, nb: 1};
+			if(!itemName || item == itemName)
+			{
+				if(types[item]){
+					types[item].nb++;
+				}
+				else{
+					types[item] = {sing: item, nb: 1};
+				}
 			}
 		}
 		for(var key in types)
