@@ -362,6 +362,7 @@ var Command = function(){
 				var result = room.monsterDamage(cmd.target,damage);
 				if(result){
 					game.addMsg('|gYou killed |o'+monster.name+'|g !');
+					snd.play('Annihilation1');
 					p.addXp(monster.xp);
 				} 
 			break;
@@ -379,6 +380,7 @@ var Command = function(){
 					{
 						game.player.setPosition(x,y);
 						game.addMsg('You walk '+cmd.location+' to the next room.'+(f.rooms[idroom].room.chest ? ' There is a chest.' : ''));
+						snd.play('Movement');
 						var msgs = f.describeRoom(x,y);
 						for(var i = 0; i < msgs.length; i++)
 						{
