@@ -35,16 +35,20 @@ var monsterList =
 	slime:
 	{
 		maxHp : 11,
-		rndHp: 15,
-		attack : 4.5,
-		rndAttack: 5,
+		attack : 3.5,
+		xp: 3,
+	},
+	rat:
+	{
+		maxHp : 7,
+		attack : 5.5,
+		xp: 3,
 	},
 	bat:
 	{
-		maxHp : 10,
-		hpVar: 20,
+		maxHp : 8,
 		attack : 3.5,
-		rndAttack: 5,
+		xp: 4,
 		moveset: 
 		{
 			attack: 
@@ -81,12 +85,11 @@ var monsterList =
 			else this.nextMove = 'attack';
 		},
 	},
-	rat:
+	snake:
 	{
-		maxHp : 8,
-		hpVar: 25,
-		attack : 3,
-		rndAttack: 5,
+		maxHp : 10,
+		attack : 4.5,
+		xp: 4,
 		moveset: 
 		{
 			attack: 

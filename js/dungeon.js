@@ -35,8 +35,9 @@ var Floor = function(f){
 
 		var pList = new probabilityList();
 		pList.addElement([
-			{type:'slime', maxDistance: 3},
-			{type:'rat', minDistance: 1, maxDistance: 1},
+			{type:'slime', maxDistance: 4},
+			{type:'rat', maxDistance: 4},
+			{type:'snake', minDistance: 3},
 			{type:'bat', minDistance: 3},
 		],8);
 		var maxXpRoom = 10;
