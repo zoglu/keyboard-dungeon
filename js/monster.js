@@ -68,7 +68,6 @@ var monsterList =
 			{
 				case 'paralysis':
 					game.addMsg('|o'+this.name+'|w emits ultrasounds !');
-					snd.play('Numbness1');
 					p.addAilment({
 						type: 'paralysis',
 						characters: Math.floor(10+game.random()*10),
@@ -112,7 +111,6 @@ var monsterList =
 					var damage = Math.round(this.attack*(1+this.attackVar*0.01*(2*game.random()-1)));
 					var hpleft = p.playerDamage(damage);
 					game.addMsg('|o'+this.name+'|w takes a poisonous bite for '+damage+' damage ! ('+hpleft+' HP left)');
-					snd.play('Poison');
 					p.addAilment({
 						type: 'poison',
 						step: 0,

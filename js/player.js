@@ -33,6 +33,7 @@ var Player = function(){
 				game.addMsg('|r*****************');
 				game.addMsg('|r'+room.describeEncounter());
 				game.addMsg('|r*****************');
+				snd.play('Attack1');
 			}
 		}
 		else
@@ -42,6 +43,7 @@ var Player = function(){
 				game.addMsg('|g*** YOU WON ! ***');
 				game.addMsg('|g You got a total of '+this.fightxp+' XP.');
 				game.addMsg('|g*****************');
+				snd.play('Success2');
 				this.fightxp = 0;
 				var msgs = floor.describeRoom(this.x,this.y);
 				for(var i = 0; i < msgs.length; i++)
@@ -86,13 +88,18 @@ var Player = function(){
 						this.maxHp += 2;
 						this.hp = this.maxHp;
 						game.addMsg('|gYou drink a |oPotion|g ('+this.nbItems(item)+' left). Your maximum HP goes up by 2 !');
+						snd.play('Recovery8');
 					}
-					else game.addMsg('You drink a |oPotion|w ('+this.nbItems(item)+' left) and recover '+this.recoverHp(20)+' HP. ('+this.hp+'/'+this.maxHp+' HP left)');
+					else {
+						game.addMsg('You drink a |oPotion|w ('+this.nbItems(item)+' left) and recover '+this.recoverHp(20)+' HP. ('+this.hp+'/'+this.maxHp+' HP left)');
+						snd.play('Recovery8');
+					}
 				break;
 				case 'antidote':
 					if(this.hasAilment()){
 						this.removeAilment('negative');
 						game.addMsg('You drink an |oAntidote|w. You recover from all negative effects.');
+						snd.play('Recovery8');
 					}
 					else{
 						game.addMsg('You drink an |oAntidote|w, however you had no negative effects.');
@@ -151,6 +158,7 @@ var Player = function(){
 						var recover = Math.min(a.hp,a.hpByStep);
 						recover = this.recoverHp(recover);
 						game.addMsg('|gYou recover '+recover+' HP due to regeneration. ('+this.hp+'/'+this.maxHp+' HP left)');
+						snd.play('Item1');
 						a.hp -= a.hpByStep;
 						if(a.hp <= 0){
 							this.removeAilment('regenerate');
@@ -165,6 +173,7 @@ var Player = function(){
 						var damage = Math.min(a.hp,a.hpByStep);
 						this.playerDamage(damage);
 						game.addMsg('|fYou lose '+damage+' HP due to poison. ('+this.hp+'/'+this.maxHp+' HP left)');
+						snd.play('Blow1');
 						a.hp -= a.hpByStep;
 						if(a.hp <= 0){
 							this.removeAilment('poison');
@@ -187,6 +196,7 @@ var Player = function(){
 						else{
 							this.ailments[i].characters = Math.max(this.ailments[i].characters,elt.characters);
 							game.addMsg('|fYou are paralysed ! Type '+this.ailments[i].characters+' characters to recover.');
+							snd.play('Numbness1');
 						}
 					break;
 					case 'regenerate':
@@ -196,6 +206,7 @@ var Player = function(){
 							this.ailments[i].maxStep = Math.min(this.ailments[i].maxStep,elt.maxStep);
 							this.ailments[i].hpByStep = Math.max(this.ailments[i].hpByStep,elt.hpByStep);
 							game.addMsg('|gYour health regenerates even more.');
+							snd.play('Item1');
 						}
 					break;
 					case 'poison':
@@ -205,6 +216,7 @@ var Player = function(){
 							this.ailments[i].maxStep = elt.maxStep;
 							this.ailments[i].hpByStep = elt.hpByStep;
 							game.addMsg('|fThe poison\'s effect increased.');
+							snd.play('Poison');
 						}
 					break;
 				}
@@ -214,12 +226,15 @@ var Player = function(){
 		switch(type){
 			case 'paralysis':
 				game.addMsg('|fYou are paralysed ! Type '+elt.characters+' characters to recover.');
+				snd.play('Numbness1');
 			break;
 			case 'poison':
 				game.addMsg('|fYou are poisoned !');
+				snd.play('Poison');
 			break;
 			case 'regenerate':
 				game.addMsg('|gYour health starts to regenerate.');
+				snd.play('Item1');
 			break;
 		}
 		this.ailments.push(elt);
@@ -287,10 +302,12 @@ var Command = function(){
 						characters: chars
 				},true);
 				game.addMsg('|fYou are paralysed ! Type '+chars+' more characters to recover.');
+				snd.play('Numbness1');
 			}
 			else{
 				p.removeAilment('paralysis');
-				game.addMsg('You have recovered from paralysis.');
+				game.addMsg('|fYou have recovered from paralysis.');
+				snd.play('Numbness1');
 			} 
 		}
 		else{

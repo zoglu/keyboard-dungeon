@@ -55,6 +55,7 @@ var Game = function(){
 			this.addMsg('|i>'+this.commands[i]);
 			cmd = command.checkPlayerCommand(this.commands[i],this);
 			if(cmd.error){
+				snd.play('Failure1');
 				this.addMsg('|r'+cmd.error);
 			}
 			else if(!cmd.cancel) command.executePlayerCommand(cmd,this);
