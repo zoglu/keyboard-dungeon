@@ -40,7 +40,7 @@ var Floor = function(f){
 			{type:'snake', minDistance: 3},
 			{type:'bat', minDistance: 3},
 		],8);
-		var maxXpRoom = 1;
+		var maxXpRoom = 10;
 
 		//Déterminer quelles salles auront des monstres, ainsi que le nombre maximal d'XP en valeur par salle.
 		var percentMonsters = 80;
