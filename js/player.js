@@ -11,7 +11,7 @@ var Player = function(){
 	this.xp = 0;
 	this.level = 1;
 
-	this.items = ['Potion','Potion','Antidote'];
+	this.items = ['Potion','Potion','Antidote','Key'];
 
 	this.floor = 0;
 	this.x = 0;
@@ -42,6 +42,11 @@ var Player = function(){
 				this.fighting = false;
 				game.addMsg('|g*** YOU WON ! ***');
 				game.addMsg('|g You got a total of '+this.fightxp+' XP.');
+				if(room.key)
+				{
+					game.addMsg('|gThe enemies left a |oKey|g.');
+					this.addItem('Key',false);
+				}
 				game.addMsg('|g*****************');
 				snd.play('Success2');
 				this.fightxp = 0;
@@ -66,6 +71,11 @@ var Player = function(){
 		return this.hp - prevHp;
 	}
 
+	this.addItem = function(item,msg){
+		if(typeof msg == 'undefined') msg = true;
+		if(msg) game.addMsg('You got '+(['a','e','i','o','u'].indexOf(item[0].toLowerCase()) != -1 ? 'an' : 'a')+' |o'+item+'|w.')
+		this.items.push(item);
+	}
 	this.hasItem = function(item){
 		for(var i = 0; i < this.items.length; i++){
 			if(this.items[i].toLowerCase() == item.toLowerCase()) return i;
@@ -83,6 +93,21 @@ var Player = function(){
 		if(this.hasItem(item) >= 0){
 			this.items.splice(this.hasItem(item),1);
 			switch(item){
+				case 'key':
+					var floor = game.dungeon.floors[this.floor];
+					var room = floor.rooms[floor.roomExists(this.x,this.y)].room;
+					if(room.chest && room.chest != 'empty')
+					{
+						this.addItem(room.chest);
+						room.setChest('empty');
+						snd.play('Open1');
+						var msgs = floor.describeRoom(this.x,this.y);
+						for(var i = 0; i < msgs.length; i++)
+						{
+							game.addMsg(msgs[i]);
+						}
+					}
+				break;
 				case 'potion':
 					if(this.hp == this.maxHp){
 						this.maxHp += 2;
@@ -117,17 +142,20 @@ var Player = function(){
 			}
 		};
 	}
-	this.describeItems = function(){
+	this.describeItems = function(itemName){
 		var msg = '';
 		var items = [];
 		var types = {};
 		for(var i = 0; i < this.items.length; i++){
 			var item = this.items[i];
-			if(types[item]){
-				types[item].nb++;
-			}
-			else{
-				types[item] = {sing: item, nb: 1};
+			if(!itemName || item == itemName)
+			{
+				if(types[item]){
+					types[item].nb++;
+				}
+				else{
+					types[item] = {sing: item, nb: 1};
+				}
 			}
 		}
 		for(var key in types)
@@ -287,7 +315,7 @@ var Player = function(){
 };
 
 var Command = function(){
-	this.dictionary = ['attack','walk','hp','xp','use'];
+	this.dictionary = ['attack','walk','hp','xp','use','open'];
 
 	this.checkPlayerCommand = function(cmd,game){
 		var ret = {};
@@ -321,10 +349,36 @@ var Command = function(){
 				ret.command = cmd[0];
 				switch (cmd[0])
 				{
+					case 'open':
+						if(cmd[2]) ret.error = 'Invalid command.';
+						if(!cmd[1]) ret.error = 'Invalid command.';
+						if(cmd[1] != 'chest') ret.error = 'Invalid command.';
+
+						//Vérifier qu'il y a bien un coffre, qu'on a une clé, et qu'il n'y a pas de monstres
+						var floor = game.dungeon.floors[p.floor];
+						var room = floor.rooms[floor.roomExists(p.x,p.y)].room;
+						if(!room.chest) ret.error = 'There is no chest here.';
+						if(floor.hasMonsters(p.x,p.y)) ret.error = 'You cannot open chests or doors during a fight.';
+						if(p.hasItem('Key') < 0) ret.error = 'You do not have a key.';
+						if(room.chest == 'empty') ret.error = 'The chest is empty.';
+
+						ret.target = cmd[1];
+					break;
 					case 'use':
 						if(cmd[2]) ret.error = 'Invalid command.';
 						else {
-							if(p.hasItem(cmd[1]) >= 0) ret.target = cmd[1];
+							if(p.hasItem(cmd[1]) >= 0)
+							{
+								ret.target = cmd[1];
+								if(ret.target == 'key')
+								{
+									var floor = game.dungeon.floors[p.floor];
+									var room = floor.rooms[floor.roomExists(p.x,p.y)].room;
+									if(floor.hasMonsters(p.x,p.y)) ret.error = 'You cannot open chests or doors during a fight.';
+									if(!room.chest) ret.error = 'There is no chest here.';
+									if(room.chest == 'empty') ret.error = 'The chest is empty.';
+								}
+							} 
 							else ret.error = 'You do not have a '+cmd[1]+'.';
 						} 
 					break;
@@ -366,6 +420,9 @@ var Command = function(){
 		var p = game.player;
 		switch (cmd.command)
 		{
+			case 'open':
+				if(cmd.target == 'chest') p.useItem('key');
+			break;
 			case 'use':
 				p.useItem(cmd.target);
 			break;
@@ -396,7 +453,10 @@ var Command = function(){
 					if(!f.hasMonsters(p.x,p.y))
 					{
 						game.player.setPosition(x,y);
-						game.addMsg('You walk '+cmd.location+' to the next room.'+(f.rooms[idroom].room.chest ? ' There is a chest.' : ''));
+						game.addMsg('You walk '+cmd.location+' to the next room.');
+						game.addMsg('');
+						game.addMsg('*** NEXT ROOM ***');
+						console.log(f.rooms[idroom].room);
 						snd.play('Movement');
 						var msgs = f.describeRoom(x,y);
 						for(var i = 0; i < msgs.length; i++)
