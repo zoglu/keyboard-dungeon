@@ -358,6 +358,7 @@ var Command = function(){
 				var monster = room.monsters[cmd.target];
 				var damage = Math.round(p.attack*(1+p.randomPercent*0.01*(2*game.random()-1)));
 				game.addMsg('You hit |o'+monster.name+'|w for '+damage+' damage.');
+				snd.play('Sword1');
 				var result = room.monsterDamage(cmd.target,damage);
 				if(result){
 					game.addMsg('|gYou killed |o'+monster.name+'|g !');
