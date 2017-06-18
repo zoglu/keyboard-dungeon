@@ -81,19 +81,6 @@ var Floor = function(f){
 			}
 		}
 
-		//Ajout de clés aux salles qui ont des monstres
-		var nbKeyRooms = Math.floor(nbMonsterRooms*(0.2+0.3*game.random()));
-		var nbKeyRooms = nbMonsterRooms-1;
-		for(var i = 0; i < nbKeyRooms; i++){
-			var room;
-			do{
-				var id = 1+Math.floor(game.random()*(this.rooms.length-2));
-				room = this.rooms[id];
-				roomContents = room.room;
-			} while(roomContents.key || !room.monsters);
-			roomContents.setKey(true);
-		}
-
 		//Ajout d'un coffre aux salles
 		var percentChest = 40;
 		var chestItems = ['potion','antidote'];
@@ -106,6 +93,21 @@ var Floor = function(f){
 			} while(room.chest);
 			room.setChest(chestItems[Math.floor(game.random()*chestItems.length)]);
 		}
+
+		//Ajout de clés aux salles qui ont des monstres
+		var nbKeyRooms = Math.floor(nbMonsterRooms*(percentChest/percentMonsters)*(0.3+0.3*game.random()));
+		//var nbKeyRooms = nbMonsterRooms-1;
+		for(var i = 0; i < nbKeyRooms; i++){
+			var room;
+			do{
+				var id = 1+Math.floor(game.random()*(this.rooms.length-2));
+				room = this.rooms[id];
+				roomContents = room.room;
+			} while(roomContents.key || !room.monsters);
+			roomContents.setKey(true);
+		}
+
+
 
 
 
@@ -143,18 +145,19 @@ var Floor = function(f){
 			if(!this.hasMonsters(x,y))
 			{
 				//Coffre
-				if(room.chest)
+				if(room.chest && room.chest != 'empty')
 				{
 					if(['potion','antidote'].indexOf(room.chest) != -1) msgs.push('There is a chest on the ground, which seems to contain a flask.');
 					else msgs.push('There is a chest on the ground.');
-					if(game.player.hasItem('Key')) msgs.push('You have '+game.player.describeItems('Key')+', so you may |copen chest|w.');
+					if(game.player.hasItem('Key') >= 0) msgs.push('You have '+game.player.describeItems('Key')+', so you may |copen chest|w.');
+					else msgs.push('However, you cannot open it as you do no have a |oKey.');
 				} 
 
 				var locations = this.getDirections(x,y);
 				var msg = '';
-				if(locations.length == 1) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w.';
-				if(locations.length == 2) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w or |cwalk '+locations[1]+'|w.';
-				if(locations.length == 3) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w, |cwalk '+locations[1]+'|w or |cwalk '+locations[2]+'|w.';
+				if(locations.length == 1) msg = 'You may '+(room.chest && room.chest != 'empty' ? 'then' : 'now')+' |cwalk '+locations[0]+'|w.';
+				if(locations.length == 2) msg = 'You may '+(room.chest && room.chest != 'empty' ? 'then' : 'now')+' |cwalk '+locations[0]+'|w or |cwalk '+locations[1]+'|w.';
+				if(locations.length == 3) msg = 'You may '+(room.chest && room.chest != 'empty' ? 'then' : 'now')+' |cwalk '+locations[0]+'|w, |cwalk '+locations[1]+'|w or |cwalk '+locations[2]+'|w.';
 				if(msg) msgs.push(msg);
 			}
 
@@ -236,9 +239,9 @@ var Room = function(){
 		{
 			var type = types[key];
 			if(type.nb == 1){
-				enemies.push('a '+type.sing);
+				enemies.push('a |o'+capitalizeFirstLetter(type.sing)+'|r');
 			}
-			else enemies.push(type.nb+' '+type.plural);
+			else enemies.push(type.nb+' |o'+capitalizeFirstLetter(type.plural)+'|r');
 		}
 		for(var i = 0; i < enemies.length; i++){
 			if(i == 0) msg += ' ';
