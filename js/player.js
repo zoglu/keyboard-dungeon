@@ -397,6 +397,7 @@ var Command = function(){
 					{
 						game.player.setPosition(x,y);
 						game.addMsg('You walk '+cmd.location+' to the next room.'+(f.rooms[idroom].room.chest ? ' There is a chest.' : ''));
+						console.log(f.rooms[idroom].room);
 						snd.play('Movement');
 						var msgs = f.describeRoom(x,y);
 						for(var i = 0; i < msgs.length; i++)

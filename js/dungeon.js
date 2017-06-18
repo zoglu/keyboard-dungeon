@@ -40,7 +40,7 @@ var Floor = function(f){
 			{type:'snake', minDistance: 3},
 			{type:'bat', minDistance: 3},
 		],8);
-		var maxXpRoom = 10;
+		var maxXpRoom = 1;
 
 		//Déterminer quelles salles auront des monstres, ainsi que le nombre maximal d'XP en valeur par salle.
 		var percentMonsters = 80;
@@ -81,6 +81,20 @@ var Floor = function(f){
 			}
 		}
 
+		//Ajout d'un coffre aux salles
+		var percentChest = 100;
+		var chestItems = ['potion','antidote'];
+		var nbChestRooms = Math.round((this.rooms.length-2)*percentChest/100);
+		for(var i = 0; i < nbChestRooms; i++){
+			var room;
+			do{
+				var id = 1+Math.floor(game.random()*(this.rooms.length-2));
+				room = this.rooms[id].room;
+			} while(room.chest);
+			room.setChest(chestItems[Math.floor(game.random()*chestItems.length)]);
+		}
+
+
 
 	}
 	this.initFloor();
@@ -113,15 +127,18 @@ var Floor = function(f){
 		{
 			var room = this.rooms[this.roomExists(x,y)].room;
 
-			//Coffre
-			if(room.chest) msgs.push('There is a chest on the ground. If you have a key, you may |copen chest|w.');
+			if(!this.hasMonsters(x,y))
+			{
+				//Coffre
+				if(room.chest) msgs.push('There is a chest on the ground.','If you have a key, you may |copen chest|w.');
 
-			var locations = this.getDirections(x,y);
-			var msg = '';
-			if(locations.length == 1) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w.';
-			if(locations.length == 2) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w or |cwalk '+locations[1]+'|w.';
-			if(locations.length == 3) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w, |cwalk '+locations[1]+'|w or |cwalk '+locations[2]+'|w.';
-			if(msg) msgs.push(msg);
+				var locations = this.getDirections(x,y);
+				var msg = '';
+				if(locations.length == 1) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w.';
+				if(locations.length == 2) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w or |cwalk '+locations[1]+'|w.';
+				if(locations.length == 3) msg = 'You may '+(room.chest ? 'then' : 'now')+' |cwalk '+locations[0]+'|w, |cwalk '+locations[1]+'|w or |cwalk '+locations[2]+'|w.';
+				if(msg) msgs.push(msg);
+			}
 
 			//msgs = ['You may |copen chest|w, |cmove forward|w, |cmove left|w or |cmove right|w.'];
 		}
@@ -218,5 +235,8 @@ var Room = function(){
 			var monster = this.monsters[i];
 			monster.update(game);
 		}
+	}
+	this.setChest = function(item){
+		this.chest = item;
 	}
 }
