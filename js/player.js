@@ -358,9 +358,11 @@ var Command = function(){
 				var monster = room.monsters[cmd.target];
 				var damage = Math.round(p.attack*(1+p.randomPercent*0.01*(2*game.random()-1)));
 				game.addMsg('You hit |o'+monster.name+'|w for '+damage+' damage.');
+				snd.play('Sword1');
 				var result = room.monsterDamage(cmd.target,damage);
 				if(result){
 					game.addMsg('|gYou killed |o'+monster.name+'|g !');
+					snd.play('Annihilation1');
 					p.addXp(monster.xp);
 				} 
 			break;
@@ -378,6 +380,7 @@ var Command = function(){
 					{
 						game.player.setPosition(x,y);
 						game.addMsg('You walk '+cmd.location+' to the next room.'+(f.rooms[idroom].room.chest ? ' There is a chest.' : ''));
+						snd.play('Movement');
 						var msgs = f.describeRoom(x,y);
 						for(var i = 0; i < msgs.length; i++)
 						{
